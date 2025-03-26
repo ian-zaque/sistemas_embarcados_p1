@@ -7,8 +7,8 @@ delayed_counter                                                                 
                          6         ; Inicializa P1 (tudo apagado)
 0000 7590FF              7         MOV P1, #0FFH
                          8
-                         9         ; Mostra dígito 0
-0003 75903F             10         MOV P1, #3FH
+                         9         ; Mostra dígito 9
+0003 75906F             10         MOV P1, #6FH
                         11
                         12         ; Atraso simples sem loops aninhados
 0006 7F19               13         MOV R7, #25

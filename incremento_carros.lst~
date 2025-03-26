@@ -1,96 +1,53 @@
-delayed_counter                                                                                                         PAGE 1
-                         1     ; Contador com Atraso Simplificado para 8051
-                         2     ; Evita loops aninhados que podem causar problemas
-                         3
-                         4         ORG 0000H
-                         5     START:
-                         6         ; Inicializa P1 (tudo apagado)
-0000 7590FF              7         MOV P1, #0FFH
-                         8
-                         9         ; Mostra dígito 0
-0003 75903F             10         MOV P1, #3FH
-                        11
-                        12         ; Atraso simples sem loops aninhados
-0006 7F19               13         MOV R7, #25
-                        14     DELAY_0:
-0008 DFFE               15         DJNZ R7, DELAY_0
-                        16
-                        17         ; Mostra dígito 1
-000A 759006             18         MOV P1, #06H
+incremento_carros                                                                                                       PAGE 1
+                         1     ORG 0000H
+                         2
+                         3     START:
+0000 75903F              4         MOV P1, #3FH      ; Inicializa o display em "0"
+0003 7800                5         MOV R0, #00H      ; Inicializa o contador em 0
+                         6
+                         7     LOOP:
+0005 E5A0                8         MOV A, P2         ; Lê o estado das chaves DIP (P2)
+0007 20E0FB              9         JB ACC.0, LOOP    ; Se o botão NÃO estiver pressionado (P2.0 = 1), continua no loop
+                        10
+000A 120014             11         CALL INCREMENTO   ; Se o botão foi pressionado, incrementa o número
+                        12
+                        13         ; Aguarda a liberação do botão para evitar contagens múltiplas indesejadas
+                        14     WAIT_RELEASE:
+000D E5A0               15         MOV A, P2
+000F 30E0FB             16         JNB ACC.0, WAIT_RELEASE  ; Espera até o botão ser solto (P2.0 = 1)
+                        17
+0012 80F1               18         SJMP LOOP         ; Repete o loop
                         19
-                        20         ; Atraso simples
-000D 7F19               21         MOV R7, #25
-                        22     DELAY_1:
-000F DFFE               23         DJNZ R7, DELAY_1
-                        24
-                        25         ; Mostra dígito 2
-0011 75905B             26         MOV P1, #5BH
+                        20     ; -------------------------
+                        21     ; Sub-rotina de incremento
+                        22     ; -------------------------
+                        23     INCREMENTO:
+0014 08                 24         INC R0           ; Incrementa o contador
+0015 B80A02             25         CJNE R0, #0AH, SHOW_NUMBER  ; Se for 10 (0AH), reinicia para 0
+0018 7800               26         MOV R0, #00H
                         27
-                        28         ; Atraso simples
-0014 7F19               29         MOV R7, #25
-                        30     DELAY_2:
-0016 DFFE               31         DJNZ R7, DELAY_2
-                        32
-                        33         ; Mostra dígito 3
-0018 75904F             34         MOV P1, #4FH
-                        35
-                        36         ; Atraso simples
-001B 7F19               37         MOV R7, #25
-                        38     DELAY_3:
-001D DFFE               39         DJNZ R7, DELAY_3
-                        40
-                        41         ; Mostra dígito 4
-001F 759066             42         MOV P1, #66H
-                        43
-                        44         ; Atraso simples
-0022 7F19               45         MOV R7, #25
-                        46     DELAY_4:
-0024 DFFE               47         DJNZ R7, DELAY_4
-                        48
-                        49         ; Mostra dígito 5
-0026 75906D             50         MOV P1, #6DH
-                        51
-                        52         ; Atraso simples
-0029 7F19               53         MOV R7, #25
-                        54     DELAY_5:
-002B DFFE               55         DJNZ R7, DELAY_5
-                        56
-                        57         ; Mostra dígito 6
-002D 75907D             58         MOV P1, #7DH
-                        59
-                        60         ; Atraso simples
-0030 7F19               61         MOV R7, #25
-                        62     DELAY_6:
-0032 DFFE               63         DJNZ R7, DELAY_6
-                        64
-                        65         ; Mostra dígito 7
-0034 759007             66         MOV P1, #07H
-                        67
-                        68         ; Atraso simples
-0037 7F19               69         MOV R7, #25
-                        70     DELAY_7:
-0039 DFFE               71         DJNZ R7, DELAY_7
-                        72
-                        73         ; Mostra dígito 8
-003B 75907F             74         MOV P1, #7FH
-                        75
-                        76         ; Atraso simples
-003E 7F19               77         MOV R7, #25
-                        78     DELAY_8:
-0040 DFFE               79         DJNZ R7, DELAY_8
-                        80
-                        81         ; Mostra dígito 9
-0042 75906F             82         MOV P1, #6FH
-                        83
-                        84         ; Atraso simples
-0045 7F19               85         MOV R7, #25
-                        86     DELAY_9:
-0047 DFFE               87         DJNZ R7, DELAY_9
-                        88
-                        89         ; Volta ao início
-0049 80B5               90         JMP START
-                        91
-                        92     END
+                        28     SHOW_NUMBER:
+001A 900022             29         MOV DPTR, #TABELA   ; Carrega a tabela de conversão para display
+001D E8                 30         MOV A, R0
+001E 93                 31         MOVC A, @A+DPTR     ; Obtém o valor correspondente ao número armazenado
+001F F590               32         MOV P1, A           ; Envia para o display
+0021 22                 33         RET
+                        34
+                        35     ; -------------------------
+                        36     ; Tabela de conversão para display de 7 segmentos (comum cátodo)
+                        37     ; -------------------------
+                        38     TABELA:
+0022 3F                 39         DB 3FH  ; 0
+0023 06                 40         DB 06H  ; 1
+0024 5B                 41         DB 5BH  ; 2
+0025 4F                 42         DB 4FH  ; 3
+0026 66                 43         DB 66H  ; 4
+0027 6D                 44         DB 6DH  ; 5
+0028 7D                 45         DB 7DH  ; 6
+0029 07                 46         DB 07H  ; 7
+002A 7F                 47         DB 7FH  ; 8
+002B 6F                 48         DB 6FH  ; 9
+                        49     END
 ASSEMBLY COMPLETE, NO ERRORS FOUND, NO WARNINGS
 
 
@@ -98,7 +55,7 @@ SYMBOL TABLE:
 ??MCU_8051_IDE . . . . . . . . . . .  N  NUMB  8051H  NOT USED
 ??VERSION. . . . . . . . . . . . . .  N  NUMB  0149H  NOT USED
 AC . . . . . . . . . . . . . . . . .  B  ADDR  00D6H  NOT USED
-ACC. . . . . . . . . . . . . . . . .  D  ADDR  00E0H  NOT USED
+ACC. . . . . . . . . . . . . . . . .  D  ADDR  00E0H
 ACSR . . . . . . . . . . . . . . . .  D  ADDR  0097H  NOT USED
 ADCF . . . . . . . . . . . . . . . .  D  ADDR  00F6H  NOT USED
 ADCLK. . . . . . . . . . . . . . . .  D  ADDR  00F2H  NOT USED
@@ -148,16 +105,6 @@ CPRL2. . . . . . . . . . . . . . . .  B  ADDR  00C8H  NOT USED
 CR . . . . . . . . . . . . . . . . .  B  ADDR  00DEH  NOT USED
 CT2. . . . . . . . . . . . . . . . .  B  ADDR  00C9H  NOT USED
 CY . . . . . . . . . . . . . . . . .  B  ADDR  00D7H  NOT USED
-DELAY_0. . . . . . . . . . . . . . .  C  ADDR  0008H
-DELAY_1. . . . . . . . . . . . . . .  C  ADDR  000FH
-DELAY_2. . . . . . . . . . . . . . .  C  ADDR  0016H
-DELAY_3. . . . . . . . . . . . . . .  C  ADDR  001DH
-DELAY_4. . . . . . . . . . . . . . .  C  ADDR  0024H
-DELAY_5. . . . . . . . . . . . . . .  C  ADDR  002BH
-DELAY_6. . . . . . . . . . . . . . .  C  ADDR  0032H
-DELAY_7. . . . . . . . . . . . . . .  C  ADDR  0039H
-DELAY_8. . . . . . . . . . . . . . .  C  ADDR  0040H
-DELAY_9. . . . . . . . . . . . . . .  C  ADDR  0047H
 DP0H . . . . . . . . . . . . . . . .  D  ADDR  0083H  NOT USED
 DP0L . . . . . . . . . . . . . . . .  D  ADDR  0082H  NOT USED
 DP1H . . . . . . . . . . . . . . . .  D  ADDR  0085H  NOT USED
@@ -182,6 +129,7 @@ FE . . . . . . . . . . . . . . . . .  B  ADDR  009FH  NOT USED
 IE . . . . . . . . . . . . . . . . .  D  ADDR  00A8H  NOT USED
 IE0. . . . . . . . . . . . . . . . .  B  ADDR  0089H  NOT USED
 IE1. . . . . . . . . . . . . . . . .  B  ADDR  008BH  NOT USED
+INCREMENTO . . . . . . . . . . . . .  C  ADDR  0014H
 INT0 . . . . . . . . . . . . . . . .  B  ADDR  00B2H  NOT USED
 INT1 . . . . . . . . . . . . . . . .  B  ADDR  00B3H  NOT USED
 IP . . . . . . . . . . . . . . . . .  D  ADDR  00B8H  NOT USED
@@ -195,6 +143,7 @@ IT1. . . . . . . . . . . . . . . . .  B  ADDR  008AH  NOT USED
 KBE. . . . . . . . . . . . . . . . .  D  ADDR  009DH  NOT USED
 KBF. . . . . . . . . . . . . . . . .  D  ADDR  009EH  NOT USED
 KBLS . . . . . . . . . . . . . . . .  D  ADDR  009CH  NOT USED
+LOOP . . . . . . . . . . . . . . . .  C  ADDR  0005H
 OSCCON . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 OV . . . . . . . . . . . . . . . . .  B  ADDR  00D2H  NOT USED
 P. . . . . . . . . . . . . . . . . .  B  ADDR  00D0H  NOT USED
@@ -202,7 +151,7 @@ P0 . . . . . . . . . . . . . . . . .  D  ADDR  0080H  NOT USED
 P1 . . . . . . . . . . . . . . . . .  D  ADDR  0090H
 P1M1 . . . . . . . . . . . . . . . .  D  ADDR  00D4H  NOT USED
 P1M2 . . . . . . . . . . . . . . . .  D  ADDR  00E2H  NOT USED
-P2 . . . . . . . . . . . . . . . . .  D  ADDR  00A0H  NOT USED
+P2 . . . . . . . . . . . . . . . . .  D  ADDR  00A0H
 P3 . . . . . . . . . . . . . . . . .  D  ADDR  00B0H  NOT USED
 P3M1 . . . . . . . . . . . . . . . .  D  ADDR  00D5H  NOT USED
 P3M2 . . . . . . . . . . . . . . . .  D  ADDR  00E3H  NOT USED
@@ -245,6 +194,7 @@ SADEN_0. . . . . . . . . . . . . . .  D  ADDR  00B9H  NOT USED
 SADEN_1. . . . . . . . . . . . . . .  D  ADDR  00BAH  NOT USED
 SBUF . . . . . . . . . . . . . . . .  D  ADDR  0099H  NOT USED
 SCON . . . . . . . . . . . . . . . .  D  ADDR  0098H  NOT USED
+SHOW_NUMBER. . . . . . . . . . . . .  C  ADDR  001AH
 SINT . . . . . . . . . . . . . . . .  C  ADDR  0023H  NOT USED
 SM0. . . . . . . . . . . . . . . . .  B  ADDR  009FH  NOT USED
 SM1. . . . . . . . . . . . . . . . .  B  ADDR  009EH  NOT USED
@@ -256,11 +206,12 @@ SPDAT. . . . . . . . . . . . . . . .  D  ADDR  00C5H  NOT USED
 SPDR . . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 SPSR . . . . . . . . . . . . . . . .  D  ADDR  00AAH  NOT USED
 SPSTA. . . . . . . . . . . . . . . .  D  ADDR  00C4H  NOT USED
-START. . . . . . . . . . . . . . . .  C  ADDR  0000H
+START. . . . . . . . . . . . . . . .  C  ADDR  0000H  NOT USED
 T0 . . . . . . . . . . . . . . . . .  B  ADDR  00B4H  NOT USED
 T1 . . . . . . . . . . . . . . . . .  B  ADDR  00B5H  NOT USED
 T2CON. . . . . . . . . . . . . . . .  D  ADDR  00C8H  NOT USED
 T2MOD. . . . . . . . . . . . . . . .  D  ADDR  00C9H  NOT USED
+TABELA . . . . . . . . . . . . . . .  C  ADDR  0022H
 TB8. . . . . . . . . . . . . . . . .  B  ADDR  009BH  NOT USED
 TCLK . . . . . . . . . . . . . . . .  B  ADDR  00CCH  NOT USED
 TCON . . . . . . . . . . . . . . . .  D  ADDR  0088H  NOT USED
@@ -282,6 +233,7 @@ TR0. . . . . . . . . . . . . . . . .  B  ADDR  008CH  NOT USED
 TR1. . . . . . . . . . . . . . . . .  B  ADDR  008EH  NOT USED
 TR2. . . . . . . . . . . . . . . . .  B  ADDR  00CAH  NOT USED
 TXD. . . . . . . . . . . . . . . . .  B  ADDR  00B1H  NOT USED
+WAIT_RELEASE . . . . . . . . . . . .  C  ADDR  000DH
 WDTCON . . . . . . . . . . . . . . .  D  ADDR  00A7H  NOT USED
 WDTPRG . . . . . . . . . . . . . . .  D  ADDR  00A7H  NOT USED
 WDTRST . . . . . . . . . . . . . . .  D  ADDR  00A6H  NOT USED

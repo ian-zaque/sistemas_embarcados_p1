@@ -38,29 +38,28 @@ delayed_timer                                                                   
 0039 75903F             37         MOV P1, #3FH        ; Mostra dígito 0 (3FH)
 003C 120041             38         CALL DELAY          ; Atraso usando o Timer 0
                         39
-                        40         ; Volta ao início
-003F 80BF               41         JMP START
-                        42
-                        43     ; Sub-rotina de atraso usando Timer 0 em Modo 2
-                        44     DELAY:
-                        45         ; Carrega o valor de reload para o Timer 0
-0041 758CFF             46         MOV TH0, #0FFH  ; Valor de reload (auto-reload para 255)
-0044 758AFF             47         MOV TL0, #0FFH  ; Inicializa o contador do Timer 0 (começa em 255)
-                        48
-                        49         ; Inicia o Timer 0
-0047 D28C               50         SETB TR0         ; Ativa o Timer 0
-                        51
-                        52         ; Espera o Timer 0 overflow
-                        53     WAIT:
-0049 308DFD             54         JNB TF0, WAIT    ; Espera até o overflow (TF0 será setado quando o timer transbordar)
-                        55
-                        56         ; Para o Timer 0 após o overflow
-004C C28C               57         CLR TR0          ; Desativa o Timer 0
-004E C28D               58         CLR TF0          ; Limpa o flag de overflow do Timer 0
-                        59
-0050 22                 60         RET              ; Retorna da sub-rotina DELAY
-                        61
-                        62     END
+003F 80BF               40         JMP START           ; Volta ao início
+                        41
+                        42     ; Sub-rotina de atraso usando Timer 0 em Modo 2
+                        43     DELAY:
+                        44         ; Carrega o valor de reload para o Timer 0
+0041 758CFF             45         MOV TH0, #0FFH  ; Valor de reload (auto-reload para 255)
+0044 758AFF             46         MOV TL0, #0FFH  ; Inicializa o contador do Timer 0 (começa em 255)
+                        47
+                        48         ; Inicia o Timer 0
+0047 D28C               49         SETB TR0         ; Ativa o Timer 0
+                        50
+                        51     ; Espera o Timer 0 overflow
+                        52     WAIT:
+0049 308DFD             53         JNB TF0, WAIT    ; Espera até o overflow (TF0 será setado quando o timer transbordar)
+                        54
+                        55         ; Para o Timer 0 após o overflow
+004C C28C               56         CLR TR0          ; Desativa o Timer 0
+004E C28D               57         CLR TF0          ; Limpa o flag de overflow do Timer 0
+                        58
+0050 22                 59         RET              ; Retorna da sub-rotina DELAY
+                        60
+                        61     END
 ASSEMBLY COMPLETE, NO ERRORS FOUND, NO WARNINGS
 
 
