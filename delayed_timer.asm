@@ -4,14 +4,14 @@
 ORG 0000H          ; Endereço inicial do programa
 
 START:
-    ; Configura o Timer 0 em modo 2 (8-bit auto-reload)
-    MOV TMOD, #02H      ; Timer 0 em Modo 2 (8-bit auto-reload)
+    ; Configura o Timer 0 em modo 1
+    MOV TMOD, #01H      ; Timer 0 em Modo 1
 
-    MOV P1, #6FH	; Mostra dígito 9 (#6FH)
-    CALL DELAY 		; Atraso usando o Timer 0
+    ;MOV P1, #6FH	; Mostra dígito 9 (#6FH)
+    ;CALL DELAY 		; Atraso usando o Timer 0
 
-    MOV P1, #7FH	; Mostra dígito 8 (#7FH)
-    CALL DELAY		; Atraso usando o Timer 0
+    ;MOV P1, #7FH	; Mostra dígito 8 (#7FH)
+    ;CALL DELAY		; Atraso usando o Timer 0
 
     MOV P1, #07H	; Mostra dígito 7 (#07H)
     CALL DELAY		; Atraso usando o Timer 0
@@ -39,11 +39,11 @@ START:
 
     JMP START		; Volta ao início
 
-; Sub-rotina de atraso usando Timer 0 em Modo 2
+; Sub-rotina de atraso usando Timer 0 em Modo 1
 DELAY:
     ; Carrega o valor de reload para o Timer 0
-    MOV TH0, #0FFH  ; Valor de reload (auto-reload para 255)
-    MOV TL0, #0FFH  ; Inicializa o contador do Timer 0 (começa em 255)
+    MOV TH0, #0FFH  ; Valor de reload
+    MOV TL0, #0F5H  ; Inicializa o contador do Timer 0 (começa em 255)
 
     ; Inicia o Timer 0
     SETB TR0         ; Ativa o Timer 0
